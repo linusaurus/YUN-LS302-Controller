@@ -38,6 +38,7 @@ int OpenRelayPin =   2;
 int CloseRelayPin =  3;
 int StopRelayPin =   4;
 int UnlockRelayPin = 5;
+int PowerPin = 6;
 int ClutchPin      = 7;
 //--------------------------------
 byte STATE = 0;
@@ -58,7 +59,7 @@ const char* MQTT_CLIENT_ID = "LS301CTL";
 const char* outTopic = "DLIN";
 const char* inTopic = "LSCMD";
 const char* statusTopic = "STATUS";
-const char* mqtt_server = "192.168.10.92";
+const char* mqtt_server = "192.168.10.62";
 
 
 
@@ -88,7 +89,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
           Serial.print("State = ");
           Serial.println(STATE);
           #endif
-          if(DOOR_ONE_STATUS == 0 && DOOR_TWO_STATUS==0){
+          if(DOOR_POSITION==2){
           client.publish(outTopic, "1" ); //Raise All Subscriberd Doors 
           }
           
@@ -194,6 +195,7 @@ void setup() {
   pinMode(CloseRelayPin,OUTPUT);
   pinMode(StopRelayPin,OUTPUT);
   pinMode(UnlockRelayPin,OUTPUT);
+  pinMode(PowerPin,OUTPUT);
   pinMode(ClutchPin,INPUT);
   
   #ifdef WRITE_MEM
@@ -210,6 +212,7 @@ void setup() {
   #endif
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
+  digitalWrite(PowerPin,HIGH);
  
 }
 
@@ -268,6 +271,10 @@ if(STATE==1 && !IN_OPEN_MODE && !DOORS_RISING){
   client.publish(outTopic,"1" );
   DOORS_RISING=true;
   }
+if(STATE==1 && DOOR_POSITION==1)
+{
+  OpenRelay();
+}
 if(STATE==2 && !IN_CLOSE_MODE){
   #ifdef DEBUG
   Serial.println("Close Relay Fired");
