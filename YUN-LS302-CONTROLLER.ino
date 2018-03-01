@@ -2,7 +2,7 @@
 MQTT client LIFT_SLIDE Motor Controller
 Master Controller
 r.young 
-8.29.2017 vB, v3[9.5.2017] v4[9.7.2017]
+8.29.2017 vB, v3[9.5.2017] v4[9.7.2017] v53.1.2018
 LS301-DLC-ESP-A
 */
 
@@ -167,6 +167,8 @@ void reconnect() {
     if (client.connect(MQTT_CLIENT_ID)) {
       #ifdef DEBUG
       Serial.println("connected");
+      ClearAllRelays();
+      digitalWrite(PowerPin,HIGH);
       #endif
       // Once connected, publish an announcement...
       client.publish(outTopic, MQTT_CLIENT_ID );
@@ -197,6 +199,7 @@ void setup() {
   pinMode(UnlockRelayPin,OUTPUT);
   pinMode(PowerPin,OUTPUT);
   pinMode(ClutchPin,INPUT);
+  ClearAllRelays();
   
   #ifdef WRITE_MEM
   EEPROM.read(0);//Last Operation or State
@@ -212,7 +215,10 @@ void setup() {
   #endif
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
-  digitalWrite(PowerPin,HIGH);
+
+  #ifdef DEBUG
+ 
+  #endif
  
 }
 
